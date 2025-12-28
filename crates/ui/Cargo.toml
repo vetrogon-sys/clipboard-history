@@ -1,0 +1,18 @@
+[package]
+name = "clipboard-ui"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "clipboard-ui"
+path = "src/main.rs"
+
+[dependencies]
+gtk4 = "0.9"
+anyhow = "1.0"
+zbus = "5.2"
+tokio = { version = "1.43", features = ["full"] }
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+enigo = "0.2"
+core_lib = { path = "../core", package = "core" }
