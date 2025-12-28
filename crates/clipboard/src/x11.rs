@@ -31,7 +31,7 @@ impl<F> ClipboardListener for X11ClipboardListener<F>
 where
     F: Fn(String) + Send + 'static,
 {
-    fn start(mut self) -> Result<()> {
+    fn start(&mut self) -> Result<()> {
         loop {
             if let Ok(text) = self.clipboard.load(
                 self.clipboard.getter.atoms.clipboard,
