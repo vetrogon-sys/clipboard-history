@@ -58,12 +58,15 @@ async fn fetch_clipboard_entries() -> Result<Vec<ClipboardEntry>> {
 }
 
 fn build_ui(app: &Application, entries: Vec<ClipboardEntry>) {
+    // Load configuration for UI dimensions
+    let config = core_lib::config::Config::load().unwrap_or_default();
+
     // Create main window with fixed size
     let window = ApplicationWindow::builder()
         .application(app)
         .title("Clipboard History")
-        .default_width(core_lib::config::Config::POPUP_WIDTH)
-        .default_height(core_lib::config::Config::POPUP_HEIGHT)
+        .default_width(config.ui.width)
+        .default_height(config.ui.height)
         .resizable(false)
         .build();
 

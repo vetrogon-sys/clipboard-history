@@ -1,0 +1,24 @@
+# Clipboard History Manager Configuration
+# This file will be automatically created at ~/.config/clipboard-history/config.toml
+
+# Maximum number of clipboard entries to store in history
+max_entries = 100
+
+# Maximum size of a single clipboard entry in bytes (1MB default)
+max_entry_size = 1048576
+
+# UI Configuration
+[ui]
+# Popup window width in pixels
+width = 600
+
+# Popup window height in pixels
+height = 400
+
+# Hotkey Configuration
+[hotkey]
+# Global hotkey to open clipboard history popup
+# Format: Modifiers+Key (e.g., "Ctrl+Shift+V", "Alt+C", "Ctrl+Alt+H")
+# Supported modifiers: Ctrl, Shift, Alt
+# Supported keys: A-Z
+popup = "Ctrl+Shift+V"
