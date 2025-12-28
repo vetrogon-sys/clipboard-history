@@ -12,17 +12,27 @@ use global_hotkey::{GlobalHotKeyManager, GlobalHotKeyEvent, HotKeyState, hotkey:
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    // Load configuration
+    let config = Config::load()?;
+    Config::ensure_default_config()?;
+
     let storage_path = Config::storage_path();
 
+    println!("Configuration:");
+    println!("  Max entries: {}", config.max_entries);
+    println!("  Hotkey: {}", config.hotkey.popup);
+    println!("  Storage: {}", storage_path.display());
+    println!();
+
     // Load existing history from persistence
-    let buffer = match ClipboardBuffer::new_with_persistence(Config::MAX_ENTRIES, &storage_path) {
+    let buffer = match ClipboardBuffer::new_with_persistence(config.max_entries, &storage_path) {
         Ok(buf) => {
             println!("Loaded {} entries from {}", buf.len(), storage_path.display());
             Arc::new(Mutex::new(buf))
         }
         Err(e) => {
             eprintln!("Failed to load persistence file: {}. Starting with empty buffer.", e);
-            Arc::new(Mutex::new(ClipboardBuffer::new(Config::MAX_ENTRIES)))
+            Arc::new(Mutex::new(ClipboardBuffer::new(config.max_entries)))
         }
     };
 
@@ -53,14 +63,37 @@ async fn main() -> Result<()> {
         listener.start().expect("Clipboard listener failed");
     });
 
-    // Register global hotkey (Ctrl+Shift+V)
+    // Parse and register global hotkey from config
+    let (ctrl, shift, alt, key_str) = core_lib::config::parse_hotkey(&config.hotkey.popup)?;
+
+    let mut modifiers = Modifiers::empty();
+    if ctrl {
+        modifiers |= Modifiers::CONTROL;
+    }
+    if shift {
+        modifiers |= Modifiers::SHIFT;
+    }
+    if alt {
+        modifiers |= Modifiers::ALT;
+    }
+
+    // Map key string to Code
+    let key_code = match key_str.as_str() {
+        "A" => Code::KeyA, "B" => Code::KeyB, "C" => Code::KeyC, "D" => Code::KeyD,
+        "E" => Code::KeyE, "F" => Code::KeyF, "G" => Code::KeyG, "H" => Code::KeyH,
+        "I" => Code::KeyI, "J" => Code::KeyJ, "K" => Code::KeyK, "L" => Code::KeyL,
+        "M" => Code::KeyM, "N" => Code::KeyN, "O" => Code::KeyO, "P" => Code::KeyP,
+        "Q" => Code::KeyQ, "R" => Code::KeyR, "S" => Code::KeyS, "T" => Code::KeyT,
+        "U" => Code::KeyU, "V" => Code::KeyV, "W" => Code::KeyW, "X" => Code::KeyX,
+        "Y" => Code::KeyY, "Z" => Code::KeyZ,
+        _ => anyhow::bail!("Unsupported key: {}", key_str),
+    };
+
     let hotkey_manager = GlobalHotKeyManager::new()?;
-    let hotkey = HotKey::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyV);
+    let hotkey = HotKey::new(Some(modifiers), key_code);
     hotkey_manager.register(hotkey)?;
 
     println!("Clipboard daemon started");
-    println!("Storage: {}", storage_path.display());
-    println!("Hotkey: Ctrl+Shift+V");
 
     // Listen for hotkey events
     let hotkey_receiver = GlobalHotKeyEvent::receiver();
