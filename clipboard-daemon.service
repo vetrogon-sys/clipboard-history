@@ -1,21 +1,21 @@
 [Unit]
 Description=Clipboard History Daemon
 Documentation=https://github.com/yourusername/clipboard-history
+# Wait for graphical session to be fully ready
 After=graphical-session.target
+PartOf=graphical-session.target
 
 [Service]
 Type=simple
 ExecStart=%h/.local/bin/clipboard-daemon
 Restart=on-failure
 RestartSec=5
+# Give the X server more time to start
+StartLimitBurst=3
+StartLimitIntervalSec=60
 
-# Security hardening
-PrivateTmp=true
-NoNewPrivileges=true
-
-# Environment
-Environment="DISPLAY=:0"
-Environment="XAUTHORITY=%h/.Xauthority"
+# Environment will be inherited from systemd user session
+# Which should already have DISPLAY and XAUTHORITY set
 
 [Install]
-WantedBy=default.target
+WantedBy=graphical-session.target
